@@ -95,6 +95,7 @@ public class TetrisPiece {
                 break;
             default:
                 System.out.println("INVALID PIECE NUMBER");
+                System.exit(1);
         }
         
     }

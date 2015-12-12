@@ -17,6 +17,12 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+/*
+ * Gameplay class used to make Gameplay object. Object is used to play Tetris.
+ * 
+ * @author Lee Glendenning
+ * @version 1.0
+ */
 public class Gameplay extends JComponent implements ActionListener {
 
     boolean gameOver = false;
@@ -28,7 +34,7 @@ public class Gameplay extends JComponent implements ActionListener {
     int id = 0;
     public static Color colour;
     boolean dropping = false;
-    int shape;
+    int curPiece;
     boolean first = true;
     public static int x1, x2, x3, x4;
     public static int y1, y2, y3, y4;
@@ -49,20 +55,34 @@ public class Gameplay extends JComponent implements ActionListener {
     private static int lastPiece = -1;
     public KeyListen k = new KeyListen();
     private boolean lockDropping = false;
-
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        k.requestFocus();//request focus for the key listener
-        
-        //draw tetris logo----------------------
+    
+    
+    /* 
+     * drawLogo method draws the Tetris logo to the top of the play area (130,15)
+     * 
+     * @param g     Graphics object used to draw to the screen
+     */
+    private void drawLogo(Graphics g){
         BufferedImage logo = null;
         try {
             logo = ImageIO.read(getClass().getResource("/logo.png"));
         } catch (IOException e) {
         }
         g.drawImage(logo, 130, 15, this);
-        //---------------------------------------
+    }
+    
+    /* 
+     * paintComponent method calls all of the drawing methods to draw all graphics for game
+     * 
+     * @param g     Graphics object used to draw to the screen
+     */
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        k.requestFocus(); // request focus for the key listener (allows user to use keyboard to place pieces)
+        
+        drawLogo(g); // draw tetris logo
+        
         g.setColor(new Color(51, 153, 255));
         g.drawRect(104, 120, 262, 520); //draw border for play area
 
@@ -219,34 +239,34 @@ public class Gameplay extends JComponent implements ActionListener {
             }
         }
 
-        //generate random number between 1,7 to represent each shape
+        //generate random number between 1,7 to represent each curPiece
         if (!dropping) {
             id++;
             k.requestFocus();
             first = true;
             if (nextPiece == -1){
                 do{
-                    lastPiece = shape;
-                    shape = 1 + (int) (Math.random() * 7);
+                    lastPiece = curPiece;
+                    curPiece = 1 + (int) (Math.random() * 7);
                     pieceRepeat ++;
                     if (lastPiece == -1){
-                        lastPiece = shape;
-                    }else if (lastPiece != shape){
+                        lastPiece = curPiece;
+                    }else if (lastPiece != curPiece){
                         pieceRepeat = 1;
                     }
                     
-                }while (shape == lastPiece && pieceRepeat > 2);//prevent getting same shape 3 times in a row
+                }while (curPiece == lastPiece && pieceRepeat > 2);//prevent getting same curPiece 3 times in a row
             }else{
-                shape = nextPiece;
+                curPiece = nextPiece;
             }
             nextPiece = 1 + (int) (Math.random() * 7);
         }
 
-        //create new shape
+        //create new curPiece
         if (first) {
 
             first = false;
-            switch (shape) {
+            switch (curPiece) {
                 case (1): //1x4 block
                     xc1 = 3;
                     xc2 = 4;
@@ -486,7 +506,11 @@ public class Gameplay extends JComponent implements ActionListener {
             }
         }
     }
-
+    
+    /*
+     * Gameplay constructor used for creating a Gameplay object.
+     * Initializes the game board.
+     */
     public Gameplay() {
         init();
         fillCoords();
@@ -494,36 +518,48 @@ public class Gameplay extends JComponent implements ActionListener {
         k.requestFocus();
     }
     
+    /* 
+     * init method is called by the Gameplay constructor to start playing music for the main screen,
+     * set initial lines to 0 and level to 1
+     */
     private void init(){
-        try {
-            playMusic();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-            Logger.getLogger(Gameplay.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        playMusic();
         Stats.lines = 0;
         Stats.linesLabel.setText(Stats.lines+"");
         Stats.levelLabel.setText(Stats.level);
-        
     }
     
-    private void playMusic() throws UnsupportedAudioFileException, IOException, LineUnavailableException{
+    /*
+     * playMusic method used to start music in continuous loop
+     */
+    private void playMusic(){
         if (Home.playSound){
             if (clip == null){
                 InputStream soundFile = getClass().getClassLoader().getResourceAsStream("TypeA.wav");
-                //File soundFile = new File("TypeA.wav");
-                sound = AudioSystem.getAudioInputStream(soundFile);
+                try {
+                    //File soundFile = new File("TypeA.wav");
+                    sound = AudioSystem.getAudioInputStream(soundFile);
+                
 
                 DataLine.Info info = new DataLine.Info(Clip.class, sound.getFormat());
                 clip = (Clip) AudioSystem.getLine(info);
                 clip.open(sound);
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
+                } catch (LineUnavailableException ex) {
+                    Logger.getLogger(Gameplay.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException | UnsupportedAudioFileException ex) {
+                    Logger.getLogger(Gameplay.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             Gameplay.clip.loop(Clip.LOOP_CONTINUOUSLY);
             clip.start();
         }
     }
-
+    
+    /*
+     * fillCoords method called by init method. Used to fill coords array with new emptpy Points
+     * i.e. no pieces in coords yet
+     */
     private void fillCoords() {
         int x = 105; //x index of coords
         for (int i = 0; i < 10; i++) //x coords
@@ -538,6 +574,12 @@ public class Gameplay extends JComponent implements ActionListener {
         }
     }
     
+    /*
+     * playSound method to play sound effect on action.
+     * e.g. hard drop, line clear, etc.
+     * 
+     * @param sound     String holding file name of sound to be played
+     */
     private void playSound(String sound){
         if (Home.playSound){
             AudioInputStream ais = null;
@@ -546,7 +588,7 @@ public class Gameplay extends JComponent implements ActionListener {
                 Clip clip2 = AudioSystem.getClip();
                 ais = AudioSystem.getAudioInputStream(new BufferedInputStream(getClass().getClassLoader().getResourceAsStream(sound)));
                 clip2.open(ais);
-                if (sound.equals("HardDrop.wav")){
+                if (sound.equals("HardDrop.wav")){ // increase volume for hard drop sound because it is hard to hear otherwise
                     ((FloatControl) clip2.getControl(FloatControl.Type.MASTER_GAIN)).setValue(6);
                 }
                 clip2.start();
@@ -561,9 +603,15 @@ public class Gameplay extends JComponent implements ActionListener {
             }
         }
     }
-
+    
+    /*
+     * actionPerformed callback method for the timer governing piece dropping.
+     * Method resets timer and repaints the screen.
+     * 
+     * @param e     ActionEvent object containing details for why this callback method was called. Not actually used
+     */
     @Override
-    public void actionPerformed(ActionEvent e) {//deal with timer
+    public void actionPerformed(ActionEvent e) { // deal with timer
         if (!gameOver) {
             delay = false;
             timer_count++;
@@ -571,17 +619,30 @@ public class Gameplay extends JComponent implements ActionListener {
             repaint();
         }
     }
-
+    
+    /*
+     * KeyListen class object to be embedded into Gameplay.
+     * Class holds method for acting on key pressed and released.
+     * 
+     * @author Lee Glendenning
+     */
     public class KeyListen extends JPanel {
         //arrow key presses
+        /*
+         * KeyListen constructor adds key listener
+         */
         public KeyListen() {
             setFocusable(true);
             addKeyListener(new KeyAdapter() {
-
+                
+                /*
+                 * keyPressed method callback method called when any key is pressed down
+                 * 
+                 * @param e     KeyEvent object holding details for which key was pressed
+                 */
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    int keyCode = e.getKeyCode();
-                    switch (keyCode) {
+                    switch (e.getKeyCode()) {
                         case KeyEvent.VK_SPACE://auto drop piece
                             playSound("HardDrop.wav");
                             //set old location to empty
@@ -612,12 +673,12 @@ public class Gameplay extends JComponent implements ActionListener {
                             ((CardLayout)Home.curGame.getLayout()).show(Home.curGame, "pause");
                             break;
                         case KeyEvent.VK_UP: //rotate piece
-                            if (check_rotate() == true) {
+                            if (checkRotate() == true) {
                                 coords[xc1][yc1].setTaken(false);
                                 coords[xc2][yc2].setTaken(false);
                                 coords[xc3][yc3].setTaken(false);
                                 coords[xc4][yc4].setTaken(false);
-                                if (shape == 1) { //rotate 1x4 block on inner right square
+                                if (curPiece == 1) { //rotate 1x4 block on inner right square
 
                                     if (yc1 == yc2) { //1x4 block must be horizontal
                                         xc1 = xc3;
@@ -635,8 +696,8 @@ public class Gameplay extends JComponent implements ActionListener {
                                         xc4++;
                                     }
 
-                                }//no 2x2 block because when rotated its shape stays consistent
-                                else if (shape == 3) { //s block
+                                }//no 2x2 block because when rotated its curPiece stays consistent
+                                else if (curPiece == 3) { //s block
                                     if (yc1 == yc2) { //horizontal state
                                         xc1--;
                                         xc2 -= 2;
@@ -650,7 +711,7 @@ public class Gameplay extends JComponent implements ActionListener {
                                         yc2 += 1;
                                         yc4 += 1;
                                     }
-                                } else if (shape == 4) { //z block
+                                } else if (curPiece == 4) { //z block
                                     if (yc1 == yc2) { //horizontal state
                                         xc1++;
                                         xc3--;
@@ -664,7 +725,7 @@ public class Gameplay extends JComponent implements ActionListener {
                                         yc2--;
                                         yc4--;
                                     }
-                                } else if (shape == 5) { //L block
+                                } else if (curPiece == 5) { //L block
                                     if (yc1 != yc4) { //1 of horizontal states
                                         if (yc1 < yc4) { //first horizontal case. rotate to vertical state 1
                                             xc1++;
@@ -695,7 +756,7 @@ public class Gameplay extends JComponent implements ActionListener {
                                             yc3++;
                                         }
                                     }
-                                } else if (shape == 6) { //backwards L block
+                                } else if (curPiece == 6) { //backwards L block
                                     if (yc3 != yc4) { //1 of horizontal states
                                         if (yc3 < yc4) { //first horizontal case. rotate to vertical state 1
                                             xc1++;
@@ -726,7 +787,7 @@ public class Gameplay extends JComponent implements ActionListener {
                                             yc4 += 2;
                                         }
                                     }
-                                } else if (shape == 7) { //top hat block
+                                } else if (curPiece == 7) { //top hat block
                                     if (yc2 != yc4) { //1 of horizontal states
                                         if (yc2 < yc4) { //first horizontal case. rotate to vertical state 1
                                             xc1++;
@@ -772,7 +833,7 @@ public class Gameplay extends JComponent implements ActionListener {
                         case KeyEvent.VK_LEFT: //slide piece left
                             if (dropping){
                                 if (xc1 > 0 && xc2 > 0 && xc3 > 0 && xc4 > 0) {// && coords[xc1 - 1][yc1].getTaken() == false && coords[xc2 - 1][yc2].getTaken() == false && coords[xc3 - 1][yc3].getTaken() == false && coords[xc4 - 1][yc4].getTaken() == false){
-                                    if (check_left() == true) {
+                                    if (checkLeft() == true) {
                                         lockDropping = true;
                                         //set old location to empty
                                         coords[xc1][yc1].setTaken(false);
@@ -803,7 +864,7 @@ public class Gameplay extends JComponent implements ActionListener {
                         case KeyEvent.VK_RIGHT: //slide piece right
                             if (dropping){
                                 if (xc1 < 9 && xc2 < 9 && xc3 < 9 && xc4 < 9) {// && coords[xc1 + 1][yc1].getTaken() == false && coords[xc2 + 1][yc2].getTaken() == false && coords[xc3 + 1][yc3].getTaken() == false && coords[xc4 + 1][yc4].getTaken() == false){
-                                    if (check_right() == true) {
+                                    if (checkRight() == true) {
                                         lockDropping = true;
                                         //set old location to empty
                                         coords[xc1][yc1].setTaken(false);
@@ -832,7 +893,13 @@ public class Gameplay extends JComponent implements ActionListener {
                             break;
                     }
                 }
-
+                
+                /*
+                 * keyReleased callback method called when a previously pressed down key is released.
+                 * Used to detect whether space bar has been released in which case fast drop is disabled.
+                 * 
+                 * @param e     KeyEvent object holding details for which key has been released
+                 */
                 @Override
                 public void keyReleased(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_DOWN) { //check that down arrow key still held. if so, keep dropping quickly
@@ -845,25 +912,33 @@ public class Gameplay extends JComponent implements ActionListener {
     }
 
     //ensure rotation doesn't pass through boundaries
+    /*
+     * checkBounds method used to enforce pieces staying within boundaries of gameplay area.
+     * Method is called after rotating a piece.
+     */
     private void checkBounds() {
+        // if piece has been moved past the left wall of the play area, move it back in bounds
         while (xc1 < 0 || xc2 < 0 || xc3 < 0 || xc4 < 0) {
             xc1++;
             xc2++;
             xc3++;
             xc4++;
         }
+        // if piece has been moved past the right wall of the play area, move it back in bounds
         while (xc1 > 9 || xc2 > 9 || xc3 > 9 || xc4 > 9) {
             xc1--;
             xc2--;
             xc3--;
             xc4--;
         }
+        // if piece has been moved below the bottom wall of the play area, move it back in bounds
         while (yc1 > 19 || yc2 > 19 || yc3 > 19 || yc4 > 19) {
             yc1--;
             yc2--;
             yc3--;
             yc4--;
         }
+        // // if piece has been moved above the top wall of the play area, move it back in bounds
         while (yc1 < 0 || yc2 < 0 || yc3 < 0 || yc4 < 0) {
             yc1++;
             yc2++;
@@ -872,328 +947,342 @@ public class Gameplay extends JComponent implements ActionListener {
         }
     }
     
-    private boolean check_rotate() {
-        boolean valid_rot = true;
+    /*
+     * checkRotate method used to verify whether an attempted rotation is valid.
+     * i.e. valid rotation if piece will not overlap existing piece
+     * 
+     * @return validrotation    boolean representing whether the attempted rotation is in fact a valid one
+     */
+    private boolean checkRotate() {
+        boolean validRotation = true;
 
-        if (shape == 1) { //rotate 1x4 block on inner right square
+        if (curPiece == 1) { //rotate 1x4 block on inner right square
             if (yc1 == yc2) { //1x4 block must be horizontal
                 if (yc3 - 1 < 0 || yc3 + 2 > 19 || coords[xc3][yc3 - 1].getTaken() == true || coords[xc3][yc3 + 1].getTaken() == true || coords[xc3][yc3 + 2].getTaken() == true) {
-                    valid_rot = false;
+                    validRotation = false;
                 }
             } else { //1x4 block must be vertical
                 if (xc1 - 2 < 0 || xc4 + 1 > 9 || coords[xc3 - 2][yc3].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true || coords[xc3 + 1][yc3].getTaken() == true) {
-                    valid_rot = false;
+                    validRotation = false;
                 }
             }
-        }//no 2x2 block because when rotated its shape stays consistent
-        else if (shape == 3) { //s block
+        }//no 2x2 block because when rotated its curPiece stays consistent
+        else if (curPiece == 3) { //s block
             if (yc1 == yc2) { //horizontal state
                 if (yc1 - 1 < 0 || coords[xc1][yc1 - 1].getTaken() == true || coords[xc2][yc2 + 1].getTaken() == true) {
-                    valid_rot = false;
+                    validRotation = false;
                 }
             } else { //vertical state
                 if (xc4 + 1 > 9 || coords[xc1][yc1 + 1].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                    valid_rot = false;
+                    validRotation = false;
                 }
             }
-        } else if (shape == 4) { //z block
+        } else if (curPiece == 4) { //z block
             if (yc1 == yc2) { //horizontal state
                 if (yc4 + 1 > 19 || coords[xc3 - 1][yc3].getTaken() == true || coords[xc4 - 2][yc4 + 1].getTaken() == true) {
-                    valid_rot = false;
+                    validRotation = false;
                 }
             } else { //vertical state
                 if (xc2 + 1 > 9 || coords[xc1 - 1][yc1].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true) {
-                    valid_rot = false;
+                    validRotation = false;
                 }
             }
-        } else if (shape == 5) { //L block
+        } else if (curPiece == 5) { //L block
             if (yc1 != yc4) { //1 of horizontal states
                 if (yc1 < yc4) { //first horizontal case. rotate to vertical state 1
                     if (yc1 - 1 < 0 || coords[xc1][yc1 - 1].getTaken() == true || coords[xc2][yc2 - 1].getTaken() == true || coords[xc2][yc2 + 1].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 } else { //second horizontal case. rotate to vertical state 2
                     if (yc3 + 1 > 19 || yc2 + 1 > 19 || coords[xc3][yc3 - 1].getTaken() == true || coords[xc3][yc3 + 1].getTaken() == true || coords[xc2][yc2 + 1].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 }
             } else { //1 of vertical states
                 if (xc1 > xc4) { //first vertical state. rotate to horizontal state 2
                     if (xc2 + 1 > 9 || xc1 + 1 > 9 || coords[xc1 + 1][yc1].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true || coords[xc2 - 1][yc2].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 } else { //second vertical state. rotate to horizontal state 1
                     if (xc2 + 2 > 9 || coords[xc2 + 1][yc2].getTaken() == true || coords[xc2 + 2][yc2].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 }
             }
-        } else if (shape == 6) { //backwards L block
+        } else if (curPiece == 6) { //backwards L block
             if (yc3 != yc4) { //1 of horizontal states
                 if (yc3 < yc4) { //first horizontal case. rotate to vertical state 1
                     if (yc2 - 1 < 0 || coords[xc1][yc1 + 1].getTaken() == true || coords[xc2][yc2 - 1].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 } else { //second horizontal case. rotate to vertical state 2
                     if (yc3 + 1 > 19 || coords[xc3][yc3 + 1].getTaken() == true || coords[xc2][yc2 - 1].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 }
             } else { //1 of vertical states
                 if (xc3 > xc4) { //first vertical state. rotate to horizontal state 2
                     if (xc2 + 1 > 9 || coords[xc1 - 1][yc1].getTaken() == true || coords[xc2 - 1][yc2].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 } else { //second vertical state. rotate to horizontal state 1
                     if (xc2 + 2 > 9 || coords[xc2 + 1][yc2].getTaken() == true || coords[xc2 + 2][yc2].getTaken() == true || coords[xc1 + 2][yc1].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 }
             }
-        } else if (shape == 7) { //top hat block
+        } else if (curPiece == 7) { //top hat block
             if (yc2 != yc4) { //1 of horizontal states
                 if (yc2 < yc4) { //first horizontal case. rotate to vertical state 1
                     if (yc2 - 1 < 0 || coords[xc2][yc2 - 1].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 } else { //second horizontal case. rotate to vertical state 2
                     if (yc3 + 1 > 19 || coords[xc2][yc2 + 1].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 }
             } else { //1 of vertical states
                 if (xc2 > xc4) { //first vertical state. rotate to horizontal state 2
                     if (xc2 + 1 > 9 || coords[xc2 + 1][yc2].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 } else { //second vertical state. rotate to horizontal state 1
                     if (xc2 - 1 < 0 || coords[xc2 - 1][yc2].getTaken() == true) {
-                        valid_rot = false;
+                        validRotation = false;
                     }
                 }
             }
         }
 
-        return valid_rot;
+        return validRotation;
     }
 
-    //make sure that if a piece moves left, there are no pieces in its way
-    private boolean check_left() {
-        boolean valid_move = true;
+    /*
+     * checkLeft method used to make sure that if a piece moves left, it does not overlap an existing piece
+     * 
+     * @return validMove    boolean representing whether if curPiece were to be moved left, it would not overlap existing pieces
+     */
+    private boolean checkLeft() {
+        boolean validMove = true;
 
-        if (shape == 1) {
+        if (curPiece == 1) {
             if (yc1 == yc2) { //1x4 block must be horizontal
                 if (coords[xc1 - 1][yc1].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             } else { //1x4 block must be vertical
                 if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc2 - 1][yc2].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             }
-        } else if (shape == 2) { //2x2 block
+        } else if (curPiece == 2) { //2x2 block
             if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true) {
-                valid_move = false;
+                validMove = false;
             }
-        } else if (shape == 3) { //s block
+        } else if (curPiece == 3) { //s block
             if (yc1 == yc2) { //horizontal state
                 if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             } else { //vertical state
                 if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc2 - 1][yc2].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             }
-        } else if (shape == 4) { //z block
+        } else if (curPiece == 4) { //z block
             if (yc1 == yc2) { //horizontal state
                 if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             } else { //vertical state
                 if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             }
-        } else if (shape == 5) { //L block
+        } else if (curPiece == 5) { //L block
             if (yc1 != yc4) { //1 of horizontal states
                 if (yc1 < yc4) { //first horizontal case
                     if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second horizontal case
                     if (coords[xc3 - 1][yc3].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             } else { //1 of vertical states
                 if (xc1 > xc4) { //first vertical state
                     if (coords[xc4 - 1][yc4].getTaken() == true || coords[xc2 - 1][yc2].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second vertical state
                     if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc2 - 1][yc2].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             }
-        } else if (shape == 6) { //backwards L block
+        } else if (curPiece == 6) { //backwards L block
             if (yc3 != yc4) { //1 of horizontal states
                 if (yc3 < yc4) { //first horizontal case
                     if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second horizontal case
                     if (coords[xc3 - 1][yc3].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             } else { //1 of vertical states
                 if (xc3 > xc4) { //first vertical state
                     if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc2 - 1][yc2].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second vertical state
                     if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc2 - 1][yc2].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             }
-        } else if (shape == 7) { //top hat block
+        } else if (curPiece == 7) { //top hat block
             if (yc2 != yc4) { //1 of horizontal states
                 if (yc2 < yc4) { //first horizontal case
                     if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second horizontal case
                     if (coords[xc3 - 1][yc3].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             } else { //1 of vertical states
                 if (xc2 > xc4) { //first vertical state
                     if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true || coords[xc4 - 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second vertical state
                     if (coords[xc1 - 1][yc1].getTaken() == true || coords[xc2 - 1][yc2].getTaken() == true || coords[xc3 - 1][yc3].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             }
         }
-        return valid_move;
+        return validMove;
     }
 
-    //make sure that if a piece moves right, there are no pieces in its way
-    private boolean check_right() {
-        boolean valid_move = true;
+    /*
+     * checkLeft method used to make sure that if a piece moves right, it does not overlap an existing piece
+     * 
+     * @return validMove    boolean representing whether if curPiece were to be moved right, it would not overlap existing pieces
+     */
+    private boolean checkRight() {
+        boolean validMove = true;
 
 
-        if (shape == 1) { //rotate 1x4 block on inner right square
+        if (curPiece == 1) { //rotate 1x4 block on inner right square
 
             if (yc1 == yc2) { //1x4 block must be horizontal
                 if (coords[xc4 + 1][yc4].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             } else { //1x4 block must be vertical
                 if (coords[xc1 + 1][yc1].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true || coords[xc3 + 1][yc3].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             }
 
-        } else if (shape == 2) { //2x2 block
+        } else if (curPiece == 2) { //2x2 block
             if (coords[xc2 + 1][yc2].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                valid_move = false;
+                validMove = false;
             }
-        } else if (shape == 3) { //s block
+        } else if (curPiece == 3) { //s block
             if (yc1 == yc2) { //horizontal state
                 if (coords[xc2 + 1][yc2].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             } else { //vertical state
                 if (coords[xc2 + 1][yc2].getTaken() == true || coords[xc3 + 1][yc3].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             }
-        } else if (shape == 4) { //z block
+        } else if (curPiece == 4) { //z block
             if (yc1 == yc2) { //horizontal state
                 if (coords[xc2 + 1][yc2].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             } else { //vertical state
                 if (coords[xc1 + 1][yc1].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                    valid_move = false;
+                    validMove = false;
                 }
             }
-        } else if (shape == 5) { //L block
+        } else if (curPiece == 5) { //L block
             if (yc1 != yc4) { //1 of horizontal states
                 if (yc1 < yc4) { //first horizontal case
                     if (coords[xc3 + 1][yc3].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second horizontal case
                     if (coords[xc1 + 1][yc1].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             } else { //1 of vertical states
                 if (xc1 > xc4) { //first vertical state
                     if (coords[xc3 + 1][yc3].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true || coords[xc1 + 1][yc1].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second vertical state
                     if (coords[xc4 + 1][yc4].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true || coords[xc3 + 1][yc3].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             }
-        } else if (shape == 6) { //backwards L block
+        } else if (curPiece == 6) { //backwards L block
             if (yc3 != yc4) { //1 of horizontal states
                 if (yc3 < yc4) { //first horizontal case
                     if (coords[xc3 + 1][yc3].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second horizontal case
                     if (coords[xc1 + 1][yc1].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             } else { //1 of vertical states
                 if (xc3 > xc4) { //first vertical state
                     if (coords[xc1 + 1][yc1].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true || coords[xc3 + 1][yc3].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second vertical state
                     if (coords[xc1 + 1][yc1].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             }
-        } else if (shape == 7) { //top hat block
+        } else if (curPiece == 7) { //top hat block
             if (yc2 != yc4) { //1 of horizontal states
                 if (yc2 < yc4) { //first horizontal case
                     if (coords[xc3 + 1][yc3].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second horizontal case
                     if (coords[xc1 + 1][yc1].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             } else { //1 of vertical states
                 if (xc2 > xc4) { //first vertical state
                     if (coords[xc1 + 1][yc1].getTaken() == true || coords[xc2 + 1][yc2].getTaken() == true || coords[xc3 + 1][yc3].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 } else { //second vertical state
                     if (coords[xc1 + 1][yc1].getTaken() == true || coords[xc3 + 1][yc3].getTaken() == true || coords[xc4 + 1][yc4].getTaken() == true) {
-                        valid_move = false;
+                        validMove = false;
                     }
                 }
             }
         }
-        return valid_move;
+        return validMove;
     }
 
 }
