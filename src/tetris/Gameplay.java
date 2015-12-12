@@ -545,10 +545,8 @@ public class Gameplay extends JComponent implements ActionListener {
                 clip = (Clip) AudioSystem.getLine(info);
                 clip.open(sound);
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
-                } catch (LineUnavailableException ex) {
-                    Logger.getLogger(Gameplay.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException | UnsupportedAudioFileException ex) {
-                    Logger.getLogger(Gameplay.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (LineUnavailableException | UnsupportedAudioFileException | IOException ex) {
+                    Logger.getLogger(Gameover.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             Gameplay.clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -625,6 +623,7 @@ public class Gameplay extends JComponent implements ActionListener {
      * Class holds method for acting on key pressed and released.
      * 
      * @author Lee Glendenning
+     * @version 1.0
      */
     public class KeyListen extends JPanel {
         //arrow key presses

@@ -47,11 +47,7 @@ public class HsScreen extends JPanel {
                 add(titleLabel, BorderLayout.NORTH);
 
                 ArrayList<HighScore> h = null;
-                try {
-                    h = HighScore.getScores();
-                } catch (URISyntaxException ex) {
-                    Logger.getLogger(HsScreen.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                h = HighScore.getScores();
 
                 //String hsNames = "";
                 //String hsLines = "";

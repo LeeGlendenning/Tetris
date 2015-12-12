@@ -1,18 +1,25 @@
 package tetris;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import javax.swing.*;
 
+/*
+ * Home class used to create home page
+ * 
+ * @author Lee Glendenning
+ * @version 1.0
+ */
 public class Home extends JPanel {
 
     private JButton playButton = new BlueButton("Game");
@@ -22,8 +29,11 @@ public class Home extends JPanel {
     private AudioInputStream sound;
     public static boolean playSound = true;
     public static JPanel curGame;
-
-    public Home() throws IOException {
+    
+    /*
+     * Home constructor creates home page
+     */
+    public Home() {
         
         registerListeners();
 
@@ -33,8 +43,12 @@ public class Home extends JPanel {
 
         JPanel titlePanel = new JPanel(new GridLayout(1, 1));
         titlePanel.setBackground(Color.BLACK);
-        ImageIcon logo = new ImageIcon(ImageIO.read(getClass().getResource("/home_logo.png")));
-        //ImageIcon logo = new ImageIcon("home_logo.png");
+        ImageIcon logo = null;
+        try {
+            logo = new ImageIcon(ImageIO.read(getClass().getResource("/home_logo.png")));
+        } catch (IOException ex) {
+            Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+        }
         JLabel logoLabel = new JLabel("", logo, JLabel.CENTER);
         titlePanel.add(logoLabel);
         topPanel.add(titlePanel, BorderLayout.NORTH);
@@ -61,11 +75,8 @@ public class Home extends JPanel {
         temp3Panel.add(aboutButton);
         buttonPanel.add(temp3Panel);
         
-        try {//play music to initialize clip which is being passed to SoundIcon
-            playMusic();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-            Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        playMusic(); // play music to initialize clip which is being passed to SoundIcon
+
         JPanel bottomPanel = new JPanel();
         bottomPanel.setBackground(Color.BLACK);
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
@@ -78,26 +89,38 @@ public class Home extends JPanel {
         
     }
     
-    private void playMusic() throws UnsupportedAudioFileException, IOException, LineUnavailableException{
+    /*
+     * playMusic method used to start music in continuous loop
+     */
+    private void playMusic(){
         if (playSound){
             if (clip == null){
-                
-                //File soundFile = new File("TitleScreen.wav");
-                //InputStream soundFile = getClass().getClassLoader().getResourceAsStream("TitleScreen.wav");
-                sound = AudioSystem.getAudioInputStream(new BufferedInputStream(getClass().getClassLoader().getResourceAsStream("TitleScreen.wav")));
+                try {
+                    sound = AudioSystem.getAudioInputStream(new BufferedInputStream(getClass().getClassLoader().getResourceAsStream("TitleScreen.wav")));
 
-                DataLine.Info info = new DataLine.Info(Clip.class, sound.getFormat());
-                clip = (Clip) AudioSystem.getLine(info);
-                clip.open(sound);
-                clip.loop(Clip.LOOP_CONTINUOUSLY);
+                    DataLine.Info info = new DataLine.Info(Clip.class, sound.getFormat());
+                    clip = (Clip) AudioSystem.getLine(info);
+                    clip.open(sound);
+                    clip.loop(Clip.LOOP_CONTINUOUSLY);
+                } catch (LineUnavailableException | UnsupportedAudioFileException | IOException ex) {
+                    Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             clip.start();
         }
     }
-
+    
+    /*
+     * registerListeners method creates callback methods for UI interactions
+     */
     private void registerListeners() {
         playButton.addActionListener(new ActionListener() {
-
+            
+            /*
+             * actionPerformed method for sound icon pressed
+             * 
+             * @param e     ActionEvent holding details about action performed. Not currently used
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (playSound){
@@ -114,7 +137,11 @@ public class Home extends JPanel {
         });
 
         hsButton.addActionListener(new ActionListener() {
-
+            /*
+             * actionPerformed method for highscore button pressed
+             * 
+             * @param e     ActionEvent holding details about action performed. Not currently used
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (clip != null){
@@ -129,7 +156,11 @@ public class Home extends JPanel {
         });
         
         aboutButton.addActionListener(new ActionListener() {
-
+            /*
+             * actionPerformed method for about button pressed
+             * 
+             * @param e     ActionEvent holding details about action performed. Not currently used
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (playSound){
