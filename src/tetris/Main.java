@@ -8,12 +8,22 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-@SuppressWarnings("serial")
+/*
+ * Main class used to create jframe and run the application in it
+ * 
+ * @author Lee Glendenning
+ * @version 1.0
+ */
 public class Main extends JPanel {
 
     public static JFrame panel = new JFrame("Tetris");
     public static boolean firstHs = true;
-
+    
+    /*
+     * main method used to create a JFrame and put the Home page in it
+     * 
+     * @param args      used to collect command line arguments. Currently not used
+     */
     public static void main(String[] args) throws IOException {
         panel.setSize(600, 700);
         panel.setResizable(false);

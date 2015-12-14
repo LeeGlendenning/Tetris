@@ -6,16 +6,20 @@ import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.Clip;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+/*
+ * SoundIcon class used to create an interactive sound icon
+ * 
+ * @author Lee Glendenning
+ * @version 1.0
+ */
 public class SoundIcon extends JPanel {
     
     private BufferedImage soundIcon = null;
@@ -23,6 +27,9 @@ public class SoundIcon extends JPanel {
     int iconLength = 65/2;
     Clip clip;
     
+    /*
+     * SoundIcon constructor creates the sound icon
+     */
     public SoundIcon(Clip clip){
         this.clip = clip;
         try {
@@ -36,7 +43,12 @@ public class SoundIcon extends JPanel {
         setMaximumSize(new Dimension(iconWidth, iconLength));
         registerListeners();
     }
-
+    
+    /* 
+     * paintComponent method draws the soundIcon to the screen
+     * 
+     * @param g     Graphics object used to draw to the screen
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -48,8 +60,14 @@ public class SoundIcon extends JPanel {
         }
     }
     
+    /*
+     * registerListeners method used to add mouse listener callback method for mouse click on the icon
+     */
     private void registerListeners(){
         addMouseListener(new MouseAdapter() {
+            /*
+             * mousePressed callback method called when mouse is pressed on the sound icon
+             */
             @Override
             public void mousePressed(MouseEvent e) {
                 Home.playSound = !Home.playSound;

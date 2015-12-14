@@ -2,80 +2,152 @@ package tetris;
 
 import java.awt.Color;
 
+/*
+ * Point class to represent a cell in the Tetris gameplay grid. Not the same as the Java.lang Point class
+ * 
+ * @author Lee Glendenning
+ * @version 1.0
+ */
 public class Point {
 
     private int x;
     private int y;
-    private boolean taken;
+    private boolean isLocTaken;
     private Color colour;
     private int id;
-
-    public Point(int a, int b, boolean c, Color d, int e) {
-        this.x = a;
-        this.y = b;
-        this.taken = c;
-        this.colour = d;
-        this.id = e;
+    
+    /*
+     * Point constructor to set instance variables
+     * 
+     * @param x             int for the x coordinate of the cell in the Tetris gameplay grid
+     * @param y             int for the y coordinate of the cell in the Tetris gameplay grid
+     * @param isLocTaken    boolean representing whether the cell in the Tetris gameplay grid is occupied
+     * @param colour        Color object for the colour of the particular cell
+     * @param id            unique id of the cell to be referenced
+     */
+    public Point(int x, int y, boolean isLocTaken, Color colour, int id) {
+        this.x = x;
+        this.y = y;
+        this.isLocTaken = isLocTaken;
+        this.colour = colour;
+        this.id = id;
     }
-
-    public void setId(int e) {
-        this.id = e;
+    
+    /*
+     * setId method used to set the id instance variable
+     * 
+     * @param id     int unique id
+     */
+    public void setId(int id) {
+        this.id = id;
     }
-
+    
+    /*
+     * getId method returns the id of the cell
+     * 
+     * @return id       int unique id for the cell
+     */
     public int getId() {
-        int temp = this.id;
-        return temp;
+        return this.id;
     }
-
-    public void setColour(Color d) {
-        this.colour = d;
+    
+    /*
+     * setColour method sets the colour instance variable
+     * 
+     * @param colour    Color object for the colour of the cell
+     */
+    public void setColour(Color colour) {
+        this.colour = colour;
     }
-
+    
+    /*
+     * getColour method returns the colour of the cell
+     * 
+     * @return      the colour of the cell
+     */
     public Color getColour() {
-        Color temp = this.colour;
-        return temp;
-    }
-
-    public void setx(int a) {
-        this.x = a;
-    }
-
-    public void sety(int b) {
-        this.y = b;
-    }
-
-    public int getx(Color d, int e) //returns x value and sets taken to true and sets colour and sets id
-    {
-        int temp = this.x;
-        this.taken = true;
-        this.colour = d;
-        this.id = e;
-        return temp;
+        return this.colour;
     }
     
-    public int getx(){//used for shadow
-        return this.x;
-    }
-
-    public int gety(Color d, int e) //returns y value and sets taken to true and sets colour and sets id
-    {
-        int temp = this.y;
-        this.taken = true;
-        this.colour = d;
-        this.id = e;
-        return temp;
+    /*
+     * setx method sets the x instance variable
+     * 
+     * @param x     int x
+     */
+    public void setx(int x) {
+        this.x = x;
     }
     
-    public int gety(){//used for shadow
-        return this.y;
+    /*
+     * sety method sets the y instance variable
+     * 
+     * @paramy      int y
+     */
+    public void sety(int y) {
+        this.y = y;
     }
-
+    
+    /*
+     * getx method returns x value and sets taken to true and sets colour and sets id
+     * 
+     * @param colour        colour of the cell
+     * @param id            int unique id
+     * @return x            int x of cell
+     */
+    public int getx(Color colour, int id){
+        this.isLocTaken = true;
+        this.colour = colour;
+        this.id = id;
+        return x;
+    }
+    
+    /*
+     * getx method returns the x value of the cell used for shadow
+     * 
+     * @return x        int x
+     */
+    public int getx(){
+        return x;
+    }
+    
+    /*
+     * gety method returns y value and sets taken to true and sets colour and sets id
+     * 
+     * @param colour        Color object of the cell
+     * @param id            int unique id
+     * @return y            int y coordinate of cell
+     */
+    public int gety(Color colour, int id){
+        isLocTaken = true;
+        this.colour = colour;
+        this.id = id;
+        return y;
+    }
+    
+    /*
+     * gety method do get y coordinate of cell. used for shadow
+     * 
+     * @return y        int y coordinate of cell
+     */
+    public int gety(){
+        return y;
+    }
+    
+    /*
+     * getTaken method returns whether cell is occupied
+     * 
+     * @return isLocTaken       boolean representing whether cell is occupied
+     */
     public boolean getTaken() {
-        boolean temp = this.taken;
-        return temp;
+        return isLocTaken;
     }
-
-    public void setTaken(boolean c) {
-        this.taken = c;
+    
+    /*
+     * setTaken method sets the isLocTaken variable
+     * 
+     * @param isLocTaken        whether the cell is taken
+     */
+    public void setTaken(boolean isLocTaken) {
+        this.isLocTaken = isLocTaken;
     }
 }

@@ -3,16 +3,22 @@ package tetris;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 
+/*
+ * PauseMenu class used to create the pause menu
+ * 
+ * @author Lee Glendenning 
+ * @version 1.0
+ */
 public class PauseMenu extends JPanel {
     
     private final JButton resumeButton = new BlueButton("Resume");
     private final JButton quitButton = new BlueButton("Quit");
     
+    /*
+     * PauseMenu constructor used to create the pause menu over the Gameplay
+     */
     public PauseMenu(){
         
         setBackground(Color.BLACK);
@@ -41,8 +47,16 @@ public class PauseMenu extends JPanel {
         registerListeners();
     }
     
+    /*
+     * registerListeners method used to create callback methods for resume and quit buttons
+     * 
+     * @param e     ActionEvent object holds details for the event. Not currently used
+     */
     private void registerListeners(){
         resumeButton.addActionListener(new ActionListener() {
+            /*
+             * actionPerformed method used to switch card layout to Gameplay
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 ((CardLayout)Home.curGame.getLayout()).show(Home.curGame, "game");
@@ -50,6 +64,11 @@ public class PauseMenu extends JPanel {
         });
         
         quitButton.addActionListener(new ActionListener() {
+            /*
+             * actionPerformed method used to switch back to Home page
+             * 
+             * @param e     ActionEvent object holds details for the event. Not currently used
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (Home.playSound){
@@ -60,11 +79,7 @@ public class PauseMenu extends JPanel {
                 Main.panel.getContentPane().removeAll();
                 Main.panel.getContentPane().revalidate();
                 Main.panel.repaint();
-                try {
-                    Main.panel.add(new Home(), BorderLayout.CENTER);
-                } catch (IOException ex) {
-                    Logger.getLogger(PauseMenu.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                Main.panel.add(new Home(), BorderLayout.CENTER);
             }
         });
     }

@@ -36,14 +36,13 @@ public class HighScore implements Serializable {
             ObjectInputStream ois = null;
             FileInputStream fin = null;
             try {
-                try {
-                    fin = new FileInputStream(new File(getClass().getClassLoader().getResource("/highscore.dat").toURI()));
-                } catch (URISyntaxException ex) {
-                    Logger.getLogger(HighScore.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                fin = new FileInputStream(new File(getClass().getClassLoader().getResource("/highscore.dat").toURI()));
+                
                 ois = new ObjectInputStream(fin);
                 h = (ArrayList<HighScore>) ois.readObject();
-            } catch (    ClassNotFoundException | IOException ex) {
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(HighScore.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException | IOException ex) {
                 Logger.getLogger(HighScore.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 try {

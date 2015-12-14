@@ -6,19 +6,23 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 
-@SuppressWarnings("serial")
+/*
+ * HsScreen class creates highscore screen
+ * 
+ * @author Lee Glendenning
+ * @version 1.0
+ */
 public class HsScreen extends JPanel {
 
     private JButton backButton = new BlueButton("Home");
     public static boolean addName = true;
-
+    
+    /*
+     * HsScreen constructor creates high score screen
+     */
     public HsScreen() {
         if (addName && Main.firstHs) {
             Main.firstHs = false;
@@ -49,8 +53,6 @@ public class HsScreen extends JPanel {
                 ArrayList<HighScore> h = null;
                 h = HighScore.getScores();
 
-                //String hsNames = "";
-                //String hsLines = "";
                 int i = 0;
                 JLabel temp;
                 JLabel temp2;
@@ -113,21 +115,25 @@ public class HsScreen extends JPanel {
             }
         });
     }
-
+    
+    /*
+     * registerListeners method creates callback method for backButton
+     */
     private void registerListeners() {
 
         backButton.addActionListener(new ActionListener() {
-
+            /*
+             * actionPerformed callback method for when backButton is pressed.
+             * Will go back to Home screen
+             * 
+             * @param e     ActionEvent object holding details for the action. Not currently used
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 Main.panel.getContentPane().removeAll();
                 Main.panel.getContentPane().revalidate();
                 Main.panel.repaint();
-                try {
-                    Main.panel.add(new Home(), BorderLayout.CENTER);
-                } catch (IOException ex) {
-                    Logger.getLogger(HsScreen.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                Main.panel.add(new Home(), BorderLayout.CENTER);
             }
         });
 

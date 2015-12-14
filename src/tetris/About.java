@@ -88,11 +88,7 @@ public class About extends JPanel {
                 Main.panel.getContentPane().removeAll();
                 Main.panel.getContentPane().revalidate();
                 Main.panel.repaint();
-                try {
-                    Main.panel.add(new Home(), BorderLayout.CENTER);
-                } catch (IOException ex) {
-                    Logger.getLogger(About.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                Main.panel.add(new Home(), BorderLayout.CENTER);
             }
         });
 

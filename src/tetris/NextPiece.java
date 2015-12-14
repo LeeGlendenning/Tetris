@@ -3,12 +3,26 @@ package tetris;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 
+/*
+ * NextPiece class used to create a box to display the next piece that will be generated for the player will get
+ * 
+ * @author Lee Glendenning
+ * @version 1.0
+ */
 public class NextPiece extends JComponent {
     
+    /*
+     * NextPiece constructor calls the paintComponent method with the repaint call
+     */
     public NextPiece(){
         repaint();
     }
     
+    /*
+     * paintComponent method used to draw the next piece for the player
+     * 
+     * @param g     Graphics object used to draw to the screen
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -25,7 +39,6 @@ public class NextPiece extends JComponent {
             nextPiece.setYc(nextPiece.getYc()[0] - nextPiece.WIDTH, nextPiece.getYc()[1] - nextPiece.WIDTH, nextPiece.getYc()[2] - nextPiece.WIDTH, nextPiece.getYc()[3] - nextPiece.WIDTH);
         }
         
-        //System.out.println(nextPiece.getXc()[0] + ", " + nextPiece.getXc()[1] + ", " + nextPiece.getXc()[2] + ", " + nextPiece.getXc()[3] + ", ");
         nextPiece.drawAsNextPiece(g);
     }
     

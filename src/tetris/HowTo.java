@@ -7,15 +7,22 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
+/*
+ * HowTo class creates HowTo page
+ * 
+ * @author Lee Glendenning
+ * @version 1.0
+ */
 public class HowTo extends JPanel{
     
     private final JSlider slider;
     private final JButton playButton;
     
+    /*
+     * HowTo constructor creates HowTo page
+     */
     public HowTo(){
         
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -68,9 +75,18 @@ public class HowTo extends JPanel{
         registerListeners();
     }
     
+    /*
+     * registerListeners method creates callback method for playButton
+     */
     private void registerListeners(){
         playButton.addActionListener(new ActionListener() {
-
+            
+            /*
+             * actionPerformed callback method for when playButton is pressed.
+             * Will go to the Gameplay screen
+             * 
+             * @param e     ActionEvent object holding details for the action. Not currently used
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 Stats.level = new Integer(slider.getValue()).toString();
@@ -78,11 +94,8 @@ public class HowTo extends JPanel{
                 Main.panel.getContentPane().removeAll();
                 Main.panel.getContentPane().revalidate();
                 Main.panel.repaint();
-                try {
-                    Main.panel.add(new Stats(), BorderLayout.WEST);
-                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-                    Logger.getLogger(HowTo.class.getName()).log(Level.SEVERE, null, ex);
-                }
+
+                Main.panel.add(new Stats(), BorderLayout.WEST);
                 Home.curGame = new JPanel(new CardLayout());
                 Home.curGame.setBackground(Color.BLACK);
                 Home.curGame.add(new Gameplay(), "game");
